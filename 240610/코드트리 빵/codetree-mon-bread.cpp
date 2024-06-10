@@ -1,212 +1,138 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <queue>
 #include <cstring>
+#define INF 987654321
 using namespace std;
 
-int N, M;
-int Map[16][16];
-int Visit[16][16];
-int dist[16][16];
-
-int PX;
-int PY;
-
-int dx[4] = {-1, 0, 0, 1};
-int dy[4] = {0, -1, 1, 0};
-
-//각 베이스 캠프 좌표
-struct BaseCamp {
+typedef struct _point{
     int x;
     int y;
-};
-vector<BaseCamp> Vector_Camp;
+}point;
 
-//각 사람이 가고싶어하는 편의점의 좌표와 거리
-struct Store {
-    int x;
-    int y;
-    int full;
-};
-vector<Store> Vector_Store;
+int mat[21][21];
+point man[31];
+point conv[31];
+vector <point> basecamp;
+int dx[4] = {-1,0,1,0};
+int dy[4] = {0,-1,0,1};
+int N,m,t = 0;
+int a,b,fin = 0;
 
-//필드에 들어온 사람들의 좌표
-struct Person {
-    int x;
-    int y;
-};
-vector<Person> Vector_Person;
+bool vis[21][21];
+queue<pair<point,int>> q;
 
-void Input() {
-    cin >> N >> M;
-    for(int i = 1; i <= N; i++)
-    {
-        for(int j = 1; j <= N; j++)
-        {
-            cin >> Map[i][j];
-            if(Map[i][j] == 1)
-            {
-                Vector_Camp.push_back({i, j});
+int findRoot(point dest, int x, int y){
+    q = queue<pair<point,int>>();    
+    memset(vis,0,sizeof(vis));
+    if(x == dest.x && y == dest.y)
+        return 0;
+    point newPoint;
+    newPoint.x = x; newPoint.y =y ;
+    vis[newPoint.x][newPoint.y] = true;
+    q.push(make_pair(newPoint,0));
+
+    while(!q.empty()){
+        point cur = q.front().first;
+        int dist = q.front().second; q.pop();
+        for(int k = 0 ; k < 4 ; k++){
+            if(mat[cur.x + dx[k]][cur.y + dy[k]] != 2 && !vis[cur.x + dx[k]][cur.y + dy[k]]){
+                if(cur.x + dx[k] == dest.x && cur.y + dy[k] == dest.y)
+                    return dist + 1;
+                vis[cur.x + dx[k]][cur.y + dy[k]] = true;
+                newPoint.x = cur.x + dx[k];
+                newPoint.y = cur.y + dy[k];
+                q.push(make_pair(newPoint,dist+1));
             }
         }
     }
-    for(int i = 1; i <= M; i++)
-    {
-        int x, y;
-        cin >> x >> y;
-        Vector_Store.push_back({x, y, false});
-    }
+    return INF;
 }
 
-void Bfs(int x, int y) {
-
-    queue<pair<pair<int, int>, int>> Q;
-    Q.push({{x, y}, 0});
-    dist[x][y] = 0;
-
-    while(!Q.empty())
-    {
-        int px = Q.front().first.first;
-        int py = Q.front().first.second;
-        int time = Q.front().second;
-        Q.pop();
-
-        for(int i = 0; i < 4; i++)
-        {
-            int nx = px + dx[i];
-            int ny = py + dy[i];
-
-            if(nx < 1 || ny < 1 || nx > N || ny > N) continue;
-            if(Visit[nx][ny] == 1) continue;
-            if(dist[nx][ny] != 9999) continue;
-;
-            dist[nx][ny] = time + 1;
-            Q.push({{nx, ny}, time + 1});
-        }
-
-    }
-    
-}
-
-//각 사람의 이동
-void Move(int n) {
-
-    int gx = Vector_Store[n].x;
-    int gy = Vector_Store[n].y;
-    Bfs(gx, gy);
-
-    int px = Vector_Person[n].x;
-    int py = Vector_Person[n].y;
-    int Min = 9999;
-
-    for(int i = 0; i < 4; i++)
-    {
-        int nx = px + dx[i];
-        int ny = py + dy[i];
-
-        if(nx < 1 || ny < 1 || nx > N || ny > N) continue;
-        if(Visit[nx][ny] == 1) continue;
-        
-        if(dist[nx][ny] < Min)
-        {
-            Min = dist[nx][ny];
-            Vector_Person[n].x = nx;
-            Vector_Person[n].y = ny;
-        }
-    }
-}
-
-//모든 편의점이 꽉 차면 true
-bool Check_Full() {
-    for(auto E : Vector_Store) 
-    {
-        if(E.full == false) return false;
-    }
-    return true;
-}
-
-//dist 초기화
-void Clear_Dist() {
-    for(int i = 0; i < 16; i++)
-    {
-        for(int j = 0; j < 16; j++)
-        {
-            dist[i][j] = 9999;
-        }
-    }
-}
-
-int main() {
-
-    int Time = 0;
-    Input();
-
-    while(true)
-    {
-
-        //1단계 : 필드 위의 사람이 편의점을 향해서 1칸 움직인다.
-        for(int i = 0; i < Vector_Person.size(); i++)
-        {
-            if(Vector_Store[i].full == true) continue;
-            Clear_Dist();
-            Move(i);
-        }
-
-        //2단계 : 각 사람이 편의점에 도착했는지 체크
-        for(int i = 0; i < Vector_Person.size(); i++)
-        {
-            //이미 도착한 편의점은 제외
-            if(Vector_Store[i].full == true) continue;
-
-            if(Vector_Person[i].x == Vector_Store[i].x && Vector_Person[i].y == Vector_Store[i].y)
-            {
-                Vector_Store[i].full = true;
-                Visit[Vector_Store[i].x][Vector_Store[i].y] = 1;
-            }
-        }
-
-        
-        if(Check_Full() == true)
-        {
-            break;
-        }
-
-
-        //3단계
-        if(Time < M)
-        {
-            PX = Vector_Store[Time].x;
-            PY = Vector_Store[Time].y;
-            
-            Clear_Dist();
-            Bfs(PX, PY);
-            
-            int Min = 9999;
-            int X;
-            int Y;
-
-            for(int i = N; i >= 1; i--)
-            {
-                for(int j = N; j >= 1; j--)
-                {
-                    if(Map[i][j] == 1 && dist[i][j] <= Min)
-                    {
-                        Min = dist[i][j];
-                        X = i;
-                        Y = j;
+void moveOneWay(){
+    for(int i = 1; i < min(t,m + 1); i++){
+        point cur = man[i];
+        int bestdist = INF;
+        int bestdir = -1;
+        if(cur.x != -1){
+            for(int k = 0 ; k < 4 ;k++){
+                int dist;
+                if(mat[cur.x + dx[k]][cur.y + dy[k]] != 2){
+                    dist = findRoot(conv[i],cur.x + dx[k],cur.y + dy[k]);
+                    if(dist < bestdist){
+                        bestdist = dist;
+                        bestdir = k;
                     }
                 }
             }
-
-            Vector_Person.push_back({X, Y});
-            Visit[X][Y] = 1;
+            man[i].x += dx[bestdir];
+            man[i].y += dy[bestdir];
+            if(man[i].x == conv[i].x && man[i].y == conv[i].y){
+                mat[man[i].x][man[i].y] = 2;
+                man[i].x = -1;
+                man[i].y = -1;
+                fin++;
+            }
         }
-
-
-
-        Time++;
     }
+}
 
-    cout << Time + 1 << '\n';
+void setNewMan(int tm){
+    point cur = conv[tm];
+    int dist = INF;
+    int idx = 0;
+    for(int i = 0 ; i < basecamp.size(); i++){
+        int bcdist = findRoot(basecamp[i],cur.x,cur.y);
+        if(bcdist < dist){
+            dist = bcdist;
+            idx = i;
+        }  
+    }
+    man[tm].x = basecamp[idx].x;
+    man[tm].y = basecamp[idx].y;
+    mat[basecamp[idx].x][basecamp[idx].y] = 2;
+    basecamp.erase(basecamp.begin() + idx);
+}
+
+void simul(){
+    while(fin < m){
+        t++;
+        if(t > 1)
+            moveOneWay();     
+        if(t <= m){
+            setNewMan(t);
+        }
+    }
+}
+
+int main (){
+    ios::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
+    cin >> N >> m;
+    for(int i = 0 ; i <= N + 1 ;i++){
+        mat[i][0] = 2;
+        mat[0][i] = 2;
+        mat[N+1][i] = 2;
+        mat[i][N+1] = 2;
+    }
+    for(int i = 1 ; i <= N ;i++){
+        for(int j = 1 ; j <= N ;j++){
+            cin >> mat[i][j];
+            if(mat[i][j] == 1){           
+                point newPoint; 
+                newPoint.x = i ; newPoint.y = j;
+                basecamp.push_back(newPoint);
+            }
+        }
+    }
+    for(int i = 1 ; i <= m ;i++){
+        cin >> a >> b;
+        conv[i].x = a;
+        conv[i].y = b;
+    }
+    simul();
+    cout << t;
     return 0;
 }
