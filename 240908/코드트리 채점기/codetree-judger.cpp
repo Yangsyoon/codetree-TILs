@@ -100,11 +100,11 @@ void heapPop()
 }
 void init(int N, string u0)
 {
-    /*qurl.clear();
+    qurl.clear();
     in_judging.clear();
     completed_machine.clear();
     history.clear();
-    judging_target.clear();*/
+    judging_target.clear();
     machinescnt = N; // 기계 개수
     workingJudgercnt = 0;
     unused_machine = 1;
@@ -190,6 +190,7 @@ void try_mark(int t)
         //cout << "i:" << i << '\n';
         heapPush(store[i]);
     }
+    workingJudgercnt++;
 
 }
 void quit_mark(int t, int num)
@@ -209,6 +210,7 @@ void quit_mark(int t, int num)
     //cout << "ju.url:" << ju.url << '\n';
     //cout << "ju.start:" << ju.start << '\n';
     //cout << "gap:" << gap << '\n';
+    workingJudgercnt--;
 }
 void count_remain()
 {
