@@ -100,11 +100,11 @@ void heapPop()
 }
 void init(int N, string u0)
 {
-    qurl.clear();
+    /*qurl.clear();
     in_judging.clear();
     completed_machine.clear();
     history.clear();
-    judging_target.clear();
+    judging_target.clear();*/
     machinescnt = N; // 기계 개수
     workingJudgercnt = 0;
     unused_machine = 1;
