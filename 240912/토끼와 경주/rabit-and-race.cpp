@@ -1,12 +1,14 @@
 #include <iostream>
 #include <unordered_map>
 #include <string.h>
-#include<unordered_set>
+#include <unordered_set>
 using namespace std;
 int Q, order, N, M, P;
 const int MX = 2005;
-int d[MX], score[MX]; //인덱스는 0~2000
-int sz, total_score;
+int d[MX];
+long long score[MX]; //인덱스는 0~2000
+int sz;
+long long total_score;
 unordered_map<int, int>rmap;
 typedef struct
 {
@@ -101,7 +103,6 @@ void rheapPop()
 void ready()
 {
     rInitHeap();
-    rmap.clear();
     memset(d, P + 1, 0);
     memset(score, P + 1, 0);
     total_score = 0;
@@ -278,7 +279,7 @@ void change_dis(int pid, int L)
 }
 void pick()
 {
-    int maxi = score[1];
+    long long maxi = score[1];
     //cout << "score[1]:" << maxi << '\n';
     for (int i = 2; i <= P; i++)
     {
