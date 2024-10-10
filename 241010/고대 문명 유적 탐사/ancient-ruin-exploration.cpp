@@ -148,6 +148,7 @@ int main()
 	bool suc; // 턴 당 성공 여부
 	int turn_score;
 	int turn = 0;
+	int unused = 0;
 	while (++turn <= K)
 	{
 		//한 턴 안에는 같은 보드에서 시작해야함.
@@ -235,7 +236,7 @@ int main()
 		int discovered;
 		int combi_cnt = 0;
 		turn_score = 0;
-		int unused = 0;
+		
 		while (1)
 		{
 			combi_cnt++;
@@ -257,7 +258,8 @@ int main()
 					{
 						
 						// 성공 시
-						
+						//cout << "ceny, cenx, max_rot:" << max_ceny << ' ' << max_cenx << ' ' << max_rot << '\n';
+						//cout << "y,x,val:" << y << ' ' << x << ' ' << val << '\n';
 						
 						turn_score += val;
 						suc = true;
@@ -273,8 +275,7 @@ int main()
 				for (int y = 4; y >= 0; y--)
 				{
 					if (removing[y][x])
-					{
-						
+					{						
 						board[y][x] = wall[unused++];
 					}
 				}
